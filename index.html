@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CyberEdge Labs - DoS Simulation</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        img {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+        .status {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px solid #58a6ff;
+            border-radius: 10px;
+            display: inline-block;
+            background-color: #161b22;
+        }
+        .request-chart {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px solid #ff6e6e;
+            border-radius: 10px;
+            background-color: #161b22;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .request-chart h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        canvas {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CyberEdge Labs Logo (use a placeholder or your own logo URL) -->
+    <img src="https://via.placeholder.com/150?text=CyberEdge+Labs" alt="CyberEdge Labs Logo">
+
+    <h1>CyberEdge Labs</h1>
+    <p><em>Distributed Denial-of-Service (DDoS) Simulation Platform</em></p>
+
+    <div class="status">
+        <h2>Server Status: <span style="color: limegreen;">ONLINE</span></h2>
+        <p>Preparing for controlled DoS testing on this environment.</p>
+    </div>
+
+    <div class="request-chart">
+        <h2>Incoming HTTP Requests</h2>
+        <canvas id="requestChart"></canvas>
+    </div>
+
+    <script>
+        // Initialize Chart.js
+        const ctx = document.getElementById('requestChart').getContext('2d');
+        const requestChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], // Time labels
+                datasets: [
+                    {
+                        label: 'GET Requests',
+                        data: [],
+                        borderColor: '#36A2EB',
+                        fill: false
+                    },
+                    {
+                        label: 'POST Requests',
+                        data: [],
+                        borderColor: '#FF6384',
+                        fill: false
+                    },
+                    {
+                        label: 'HEAD Requests',
+                        data: [],
+                        borderColor: '#FFCE56',
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Requests'
+                        },
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Simulate incoming HTTP requests
+        const methods = ['GET', 'POST', 'HEAD'];
+        const endpoints = ['/api/status', '/api/data', '/api/users', '/api/ping'];
+        let requestCounts = { GET: 0, POST: 0, HEAD: 0 };
+
+        function addRequest() {
+            const method = methods[Math.floor(Math.random() * methods.length)];
+            requestCounts[method]++;
+
+            // Update chart
+            const timestamp = new Date().toLocaleTimeString();
+            requestChart.data.labels.push(timestamp);
+            requestChart.data.datasets[0].data.push(requestCounts.GET);
+            requestChart.data.datasets[1].data.push(requestCounts.POST);
+            requestChart.data.datasets[2].data.push(requestCounts.HEAD);
+
+            // Limit to 20 data points
+            if (requestChart.data.labels.length > 20) {
+                requestChart.data.labels.shift();
+                requestChart.data.datasets.forEach(dataset => dataset.data.shift());
+            }
+
+            requestChart.update();
+        }
+
+        // Simulate requests at random intervals (1-3 seconds)
+        function simulateRequests() {
+            addRequest();
+            setTimeout(simulateRequests, Math.random() * 2000 + 1000);
+        }
+
+        // Start simulation
+        simulateRequests();
+    </script>
+
+</body>
+</html>
